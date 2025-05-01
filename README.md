@@ -6,6 +6,11 @@
 # Setup:
 - wip
 
+# Gems
+- pry - tool for debugging
+- redis - for scaling the rate limiter
+- sidekiq - for background jobs
+- rspec - testing (requirement)
 
 # 1. Rate Limiter
 file path: 
