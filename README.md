@@ -1,6 +1,7 @@
 # README - Wolf Api + Rate Limiter Challenge
+
+# Important:
 - added both tasks to this repo
-- leveraging minitest for both solutions
 
 # Setup:
 
