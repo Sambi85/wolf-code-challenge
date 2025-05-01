@@ -1,4 +1,3 @@
-# app/models/opportunity.rb
 class Opportunity < ApplicationRecord
   belongs_to :client
   has_many :applications, dependent: :destroy
