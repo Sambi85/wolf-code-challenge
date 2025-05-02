@@ -13,10 +13,6 @@ RSpec.describe "Opportunities API", type: :request do
     Sidekiq::Worker.clear_all
   end
 
-  around do |example|
-    perform_enqueued_jobs { example.run }
-  end
-
   let(:client) { create(:client) }
   let(:job_seeker) { create(:job_seeker) }
   let!(:opportunity1) { create(:opportunity, title: "Ruby Developer", client: client) }
@@ -70,7 +66,6 @@ RSpec.describe "Opportunities API", type: :request do
     it "applies to an opportunity and enqueues a Sidekiq job" do
       post "/opportunities/#{opportunity1.id}/apply", headers: { "X-Job-Seeker-Email" => job_seeker.email }
       expect(response).to have_http_status(:ok)
-
       expect(enqueued_jobs.size).to eq(1)
       expect(JobApplication.count).to eq(1)
     end

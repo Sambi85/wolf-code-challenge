@@ -25,10 +25,13 @@ RSpec.configure do |config|
 
   config.before(:each) do
     Sidekiq::Worker.clear_all
+    clear_enqueued_jobs
+    JobApplication.delete_all
+    Rails.cache.redis.flushdb if Rails.cache.respond_to?(:redis)
     Rails.cache.clear
   end
 
   config.after(:each) do
-    Rails.cache.clear
+    Sidekiq::Worker.clear_all
   end
 end
