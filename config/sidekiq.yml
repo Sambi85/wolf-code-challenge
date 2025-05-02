@@ -1,0 +1,7 @@
+:concurrency: 10
+:queues:
+  - critical
+  - default
+  - low_priority
+:timeout: 30 
+:retry: 3 
