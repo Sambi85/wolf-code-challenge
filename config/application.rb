@@ -11,5 +11,6 @@ module WolfApiChallenge
     config.load_defaults 8.0
     config.autoload_lib(ignore: %w[assets tasks])
     config.active_job.queue_adapter = :sidekiq
+    config.autoload_paths += %W[#{config.root}/lib]
   end
 end

@@ -4,9 +4,14 @@
 - added both tasks to this repo
 
 # Setup:
-- wip
+- git clone this repo to your local
+- navigate to the root dir of this project
 
-in terminal: run sidekiq
+in terminal: rails s
+bundle install
+rails s
+
+in terminal: sidekiq
 ```bash
 bundle exec sidekiq
 ```
@@ -31,8 +36,18 @@ app/lib/custom_rate_limiter.rb
 - I went with Redis for scaling, fault tolerance, and maintainability.
 
 # 2. Job Marketplace API & Optimization
-- Using scopes for db queries 
-- You could spring for ransack gem to aid in more complex searches
+- Added scopes to optimize db queries 
+- Using Postgres, it's a good fit for optimizations for queries
+- Added services to clean up controllers + seperate concerns
+- Added Factories for drying out tests + making test management easier overall
+- Using a gem for pagination. Make sense in this context, easier to manage
+- Disabled protect_from_forgery for this assessment, I would in a production enviroment
+- Did not implement Auth for this assessment, I would in a production environment
+- Added logging + error handling when needed
+
+Services + Helpers:
+- app/lib/result.rb is a helper class. 
+- app/services/applications/apply_to_opportunity.rb is a service
 
 # Running Tests
 - Test for 1. Algo Challenge: Rate Limiter
@@ -42,8 +57,39 @@ app/lib/custom_rate_limiter.rb
 
 - Test for 2.Job Marketplace API & Optimization
 ```bash
-  wip
+  rspec
+  or
+  rspec spec/
 ```
+
+# Curl commands
+- I suggest using 3 terminals
+- enter curl commands (Terminal 1)
+- requires an instance of sidekiq (Terminal 2)
+- requieres rails server to be running (Terminal 3)
+
+**Happy Path Testing**
+curl -X GET "http://localhost:3000/opportunities?search=Developer&page=1"
+curl -X POST "http://localhost:3000/opportunities" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "opportunity": {
+      "title": "Software Developer",
+      "description": "We are looking for a skilled software developer.",
+      "salary": 120000
+    }
+  }'
+
+curl -X POST "http://localhost:3000/opportunities/1/apply"
+
+**Edge cases Testing**
+No search parameters - curl -X GET "http://localhost:3000/opportunities"
+Not found - curl -X POST "http://localhost:3000/opportunities/999/apply"
+Different Pages - curl -X GET "http://localhost:3000/opportunities?page=2"
+Invalid Search Term - curl -X GET "http://localhost:3000/opportunities?search=NonExistentTitle"
+
+curl -X GET "http://localhost:3000/up"
+
 
 # Articles
 On Hashes + block declaration - https://stackoverflow.com/questions/59869743/ruby-hash-new-with-a-block-need-in-depth-explanation

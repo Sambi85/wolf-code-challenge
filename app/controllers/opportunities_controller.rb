@@ -6,7 +6,7 @@ class OpportunitiesController < ApplicationController
 
   def index
     cache_key = "opportunities:#{params[:search]}:page_#{params[:page]}" # <-- redis caching
-    binding.pry
+
     opportunities = Rails.cache.fetch(cache_key, expires_in: 10.minutes) do
       Opportunity.with_client_name # <-- pagination
                  .search_by_title(params[:search])
@@ -41,26 +41,29 @@ class OpportunitiesController < ApplicationController
   end
 
   def apply
-    job_seeker = JobSeeker.first # Here you would assign a job seeker using auth
-    job_application = @opportunity.job_applications.new(job_seeker: job_seeker)
+    job_seeker = current_job_seeker # Replace with actual auth lookup
+    result = Applications::ApplyToOpportunity.new(
+      opportunity: @opportunity,
+      job_seeker: job_seeker
+    ).call
 
-    if job_application.save
-      # Notify job seeker via background job (this doesn't change)
-      NotifyJobSeekerJob.perform_async(job_seeker.id, @opportunity.id)
-      render json: { message: "Application successful" }, status: :ok
+    if result.success?
+      render json: { message: result.value[:message] }, status: :ok
     else
-      Rails.logger.warn("[OpportunitiesController#apply] Validation failed: #{job_application.errors.full_messages.join(', ')}")
-      render json: { errors: job_application.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: result.errors }, status: :unprocessable_entity
     end
-  rescue => e
-    Rails.logger.error("[OpportunitiesController#apply] #{e.class}: #{e.message}")
-    render json: { error: "Failed to apply to the opportunity" }, status: :internal_server_error
   end
 
   private
 
+  def current_job_seeker
+    JobSeeker.find_by(email: request.headers["X-Job-Seeker-Email"]) || JobSeeker.first # dummy for auth
+  end
+
   def set_opportunity
     @opportunity = Opportunity.find(params[:id])
+  rescue ActiveRecord::RecordNotFound => e
+    record_not_found(e)
   end
 
   def opportunity_params
