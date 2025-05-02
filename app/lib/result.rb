@@ -7,9 +7,23 @@ class Result
     @errors = errors
   end
 
-  def self.success(value = nil) = new(success: true, value: value)
-  def self.failure(errors = []) = new(success: false, errors: Array(errors))
+  def self.success(value = nil)
+    new(success: true, value: value)
+  end
 
-  def success? = @success
-  def failure? = !@success
+  def self.failure(errors = [])
+    new(success: false, errors: Array(errors))
+  end
+
+  def success?
+    @success
+  end
+
+  def failure?
+    !@success
+  end
+
+  def message
+    success? ? value : errors.join(", ")
+  end
 end

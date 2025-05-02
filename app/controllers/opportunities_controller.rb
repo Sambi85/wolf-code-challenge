@@ -5,21 +5,10 @@ class OpportunitiesController < ApplicationController
   rescue_from StandardError, with: :internal_server_error
 
   def index
-    cache_key = "opportunities:#{params[:search]}:page_#{params[:page]}" # <-- redis caching
+    search_service = OpportunitySearchService.new(search: params[:search], page: params[:page])
+    result = search_service.call
 
-    opportunities = Rails.cache.fetch(cache_key, expires_in: 10.minutes) do
-      Opportunity.with_client_name # <-- pagination
-                 .search_by_title(params[:search])
-                 .page(params[:page])
-                 .per(10)
-                 .map { |opportunity| opportunity.slice("id", "title", "description", "salary", "client_name") }
-    end
-
-    total_count = Rails.cache.fetch("opportunities:count:#{params[:search]}") do # aids in pagination
-      Opportunity.search_by_title(params[:search]).count
-    end
-
-    render json: { opportunities: opportunities, total_count: total_count }
+    render json: result
   rescue => e
     Rails.logger.error("[OpportunitiesController#index] #{e.class}: #{e.message}")
     render json: { error: "Unable to load opportunities" }, status: :internal_server_error

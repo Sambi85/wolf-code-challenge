@@ -26,6 +26,7 @@ RSpec.describe "Opportunities API", type: :request do
   describe "GET /opportunities" do
     it "returns paginated opportunities with client name and uses caching" do
       get "/opportunities", params: { search: "Developer", page: 1 }
+
       expect(response).to have_http_status(:ok)
 
       json = JSON.parse(response.body)
