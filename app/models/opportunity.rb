@@ -1,6 +1,6 @@
 class Opportunity < ApplicationRecord
   belongs_to :client
-  has_many :applications, dependent: :destroy
+  has_many :job_applications, dependent: :destroy
 
   validates :title, :description, :salary, presence: true
   validates :salary, numericality: { greater_than_or_equal_to: 0 }
