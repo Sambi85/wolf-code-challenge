@@ -7,5 +7,5 @@ class Opportunity < ApplicationRecord
 
   # Scopes for searching and optimizing queries
   scope :search_by_title, ->(title) { where("title ILIKE ?", "%#{title}%") }
-  scope :with_client_name, -> { includes(:client).select("opportunities.*, clients.name AS client_name") }
+  scope :with_client_name, -> { joins(:client).select("opportunities.*, clients.name AS client_name") }
 end
