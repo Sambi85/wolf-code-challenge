@@ -2,8 +2,8 @@ require 'rails_helper'
 
 RSpec.describe OpportunitySearchService, type: :service do
   before(:each) do
-    Sidekiq::Testing.fake!
-    Sidekiq::Worker.clear_all
+    Opportunity.delete_all
+    JobApplication.delete_all
     Rails.cache.clear
     Rails.cache.redis.flushdb if Rails.cache.respond_to?(:redis)
   end
