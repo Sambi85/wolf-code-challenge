@@ -6,11 +6,18 @@
 # Setup:
 - wip
 
+in terminal: run sidekiq
+```bash
+bundle exec sidekiq
+```
+
 # Gems
 - pry - tool for debugging
 - redis - for scaling the rate limiter
 - sidekiq - for background jobs
+- kaminari - for pagination
 - rspec - testing (requirement)
+- factory_bot_rails - dry out test suite
 
 # 1. Rate Limiter
 file path: 
@@ -24,8 +31,8 @@ app/lib/custom_rate_limiter.rb
 - I went with Redis for scaling, fault tolerance, and maintainability.
 
 # 2. Job Marketplace API & Optimization
-- wip
-
+- Using scopes for db queries 
+- You could spring for ransack gem to aid in more complex searches
 
 # Running Tests
 - Test for 1. Algo Challenge: Rate Limiter
@@ -45,6 +52,11 @@ Shift, array method - https://ruby-doc.org/core-2.5.8/Array.html#method-i-shift
 Mutex, thread safety - (Single Server Approach Rate limiting)  
 - https://ruby-doc.org/core-2.5.7/Mutex.html
 - https://medium.com/@sonianand11/how-to-use-mutex-in-ruby-a-comprehensive-guide-5395db292671
+
+
+kaminari gem - https://github.com/kaminari/kaminari
+ransack gem - https://github.com/activerecord-hackery/ransack
+
 
 **Redis Syntax**
 ZREMBRANGEBYSCORE, Removes all elements in the sorted set stored  - https://redis.io/docs/latest/commands/zremrangebyscore/

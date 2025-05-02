@@ -1,5 +1,5 @@
 require 'rails_helper'
 
-RSpec.describe NotifyJobSeekerJob, type: :job do
+RSpec.describe NotifyJobSeekerJob do
   pending "add some examples to (or delete) #{__FILE__}"
 end

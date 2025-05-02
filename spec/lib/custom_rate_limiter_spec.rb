@@ -1,5 +1,4 @@
 require "spec_helper"
-require "pry"
 require_relative '../../app/lib/custom_rate_limiter'
 
 RSpec.describe CustomRateLimiter do

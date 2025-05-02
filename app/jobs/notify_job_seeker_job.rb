@@ -1,8 +1,6 @@
 class NotifyJobSeekerJob < ApplicationJob
   queue_as :default
 
-  include Sidekiq::Worker
-
   def perform(job_seeker_id, opportunity_id)
     Rails.logger.info "NotifyJobSeekerJob started for JobSeeker ID: #{job_seeker_id}, Opportunity ID: #{opportunity_id}"
 

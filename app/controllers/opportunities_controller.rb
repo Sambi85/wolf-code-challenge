@@ -5,12 +5,19 @@ class OpportunitiesController < ApplicationController
   rescue_from StandardError, with: :internal_server_error
 
   def index
-    opportunities = Opportunity.with_client_name
-                               .search_by_title(params[:search])
-                               .page(params[:page])
-                               .per(10)
+    cache_key = "opportunities:#{params[:search]}:page_#{params[:page]}" # <-- redis caching
+    opportunities = Rails.cache.fetch(cache_key, expires_in: 10.minutes) do
+      Opportunity.with_client_name # <-- pagination
+                 .search_by_title(params[:search])
+                 .page(params[:page])
+                 .per(10)
+    end
 
-    render json: opportunities
+    total_count = Rails.cache.fetch("opportunities:count:#{params[:search]}") do # aids in pagination
+      Opportunity.search_by_title(params[:search]).count
+    end
+
+    render json: { opportunities: opportunities, total_count: total_count }
   rescue => e
     Rails.logger.error("[OpportunitiesController#index] #{e.class}: #{e.message}")
     render json: { error: "Unable to load opportunities" }, status: :internal_server_error
@@ -35,7 +42,7 @@ class OpportunitiesController < ApplicationController
     job_application = @opportunity.applications.new(job_seeker: current_job_seeker)
 
     if job_application.save
-      NotifyJobSeekerJob.perform_async(current_job_seeker.id, @opportunity.id)
+      NotifyJobSeekerJob.perform_async(current_job_seeker.id, @opportunity.id) # <-- sidekiq background job
       render json: { message: "Application successful" }, status: :ok
     else
       Rails.logger.warn("[OpportunitiesController#apply] Validation failed: #{job_application.errors.full_messages.join(', ')}")
