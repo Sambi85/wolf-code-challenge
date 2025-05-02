@@ -11,6 +11,7 @@ RSpec.describe "Opportunities API", type: :request do
 
   after(:each) do
     Sidekiq::Worker.clear_all
+    Rails.cache.clear
   end
 
   let(:client) { create(:client) }

@@ -9,6 +9,7 @@ RSpec.describe OpportunitySearchService, type: :service do
   describe '#call' do
     context 'with search and pagination' do
       it 'returns opportunities that match the search term' do
+        Rails.cache.clear
         search_service = OpportunitySearchService.new(search: "Developer", page: 1)
 
         result = search_service.call
@@ -19,6 +20,7 @@ RSpec.describe OpportunitySearchService, type: :service do
       end
 
       it 'paginates the opportunities' do
+        Rails.cache.clear
         search_service = OpportunitySearchService.new(search: "Developer", page: 1)
 
         result = search_service.call
