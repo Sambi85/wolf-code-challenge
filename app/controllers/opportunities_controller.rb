@@ -6,11 +6,13 @@ class OpportunitiesController < ApplicationController
 
   def index
     cache_key = "opportunities:#{params[:search]}:page_#{params[:page]}" # <-- redis caching
+    binding.pry
     opportunities = Rails.cache.fetch(cache_key, expires_in: 10.minutes) do
       Opportunity.with_client_name # <-- pagination
                  .search_by_title(params[:search])
                  .page(params[:page])
                  .per(10)
+                 .map { |opportunity| opportunity.slice("id", "title", "description", "salary", "client_name") }
     end
 
     total_count = Rails.cache.fetch("opportunities:count:#{params[:search]}") do # aids in pagination
@@ -25,7 +27,7 @@ class OpportunitiesController < ApplicationController
 
   def create
     opportunity = Opportunity.new(opportunity_params)
-    opportunity.client = current_client
+    opportunity.client = Client.first # Here you would assign a client using auth
 
     if opportunity.save
       render json: opportunity, status: :created
@@ -39,10 +41,12 @@ class OpportunitiesController < ApplicationController
   end
 
   def apply
-    job_application = @opportunity.applications.new(job_seeker: current_job_seeker)
+    job_seeker = JobSeeker.first # Here you would assign a job seeker using auth
+    job_application = @opportunity.job_applications.new(job_seeker: job_seeker)
 
     if job_application.save
-      NotifyJobSeekerJob.perform_async(current_job_seeker.id, @opportunity.id) # <-- sidekiq background job
+      # Notify job seeker via background job (this doesn't change)
+      NotifyJobSeekerJob.perform_async(job_seeker.id, @opportunity.id)
       render json: { message: "Application successful" }, status: :ok
     else
       Rails.logger.warn("[OpportunitiesController#apply] Validation failed: #{job_application.errors.full_messages.join(', ')}")
