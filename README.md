@@ -3,7 +3,10 @@
 # Important:
 - please note, both assigned tasks can be found this repo
 
-🛠 Setup
+# 🛠 Setup
+- This project uses default configuration — no .env or external ENV variables required.
+- Sidekiq requires Redis running on localhost:6379. You can configure this via config/sidekiq.yml or config/initializers/sidekiq.rb if needed.
+
 Clone the repository
 git clone https://github.com/your-username/your-repo.git
 cd <TARGET DIR>
@@ -70,12 +73,17 @@ app/lib/custom_rate_limiter.rb
 - temporarily disabled protect_from_forgery for API testing convenience; would re-enable and secure CSRF handling in production.
 - authentication was not implemented in this assessment for simplicity, but would be integrated using token-based auth (e.g., JWT or Devise) in a production environment.
 
-# Services + Helpers:
+# Where to start? (Controller, Services, Helpers, etc.):
+- app/controllers/opportunities_controller.rb - most of the action takes place here
 - app/lib/result.rb provides a simple, consistent result object for service responses — helps enforce separation of concerns and simplifies success/error handling across the app.
 - app/services/applications/apply_to_opportunity.rb encapsulates application logic for job seekers, keeping the OpportunitiesController#apply action clean and focused.
 - app/services/opportunity_search_service.rb extracts search and pagination logic from the #index action, promoting reuse and improving testability.
 - app/jobs/notify_job_seeker_job.rb, handles background job
 - app/services/notification_service.rb, notification
+- app/spec/* , all my tests and factories live here
+- db/*, my migrations, seeds and schema
+- config/routes.rb, my routes
+- app/models, my models, validations and associations. I decide to keep it light here and focus on performance and scaling instead.
 
 # Running Tests
 - Tests for 1. Algo Challenge: Rate Limiter
@@ -87,14 +95,15 @@ app/lib/custom_rate_limiter.rb
 ```bash
   rspec
   or
-  rspec spec/<FILE_PATH_TO_TEST>/test.spec:<LINE NUMBER>
+  rspec spec/<FILE_PATH_TO_TEST>/<TEST_NAME>.spec:<LINE NUMBER>
 ```
 
 # Curl commands
 - I suggest using 3 terminals
 - enter curl commands (Terminal 1)
 - requires an instance of sidekiq (Terminal 2)
-- requieres rails server to be running (Terminal 3)
+- requires rails server to be running (Terminal 3)
+- If test data is needed, I suggest creating additional seeds (db/seeds.rb), then in terminal: rails db:seed 
 
 **Happy Path Testing**
 curl -X GET "http://localhost:3000/opportunities?search=Developer&page=1"
@@ -117,6 +126,11 @@ Different Pages - curl -X GET "http://localhost:3000/opportunities?page=2"
 Invalid Search Term - curl -X GET "http://localhost:3000/opportunities?search=NonExistentTitle"
 
 curl -X GET "http://localhost:3000/up"
+
+# Known Limitations
+- Authentication is stubbed; all users are anonymous.
+- No pagination metadata in headers — currently returned in the JSON body.
+- CSRF is disabled for development convenience.
 
 # Articles
 Separation of Concern - https://en.wikipedia.org/wiki/Separation_of_concerns
