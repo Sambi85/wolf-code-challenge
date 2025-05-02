@@ -1,6 +1,18 @@
 require 'rails_helper'
 
 RSpec.describe OpportunitySearchService, type: :service do
+  before(:each) do
+    Sidekiq::Testing.fake!
+    Sidekiq::Worker.clear_all
+    Rails.cache.clear
+    Rails.cache.redis.flushdb if Rails.cache.respond_to?(:redis)
+  end
+
+  after(:each) do
+    Sidekiq::Worker.clear_all
+    Rails.cache.clear
+  end
+
   let(:client) { create(:client) }
   let!(:opportunity1) { create(:opportunity, title: "Ruby Developer", client: client) }
   let!(:opportunity2) { create(:opportunity, title: "React Developer", client: client) }
