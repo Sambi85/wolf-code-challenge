@@ -5,8 +5,10 @@ include ActiveJob::TestHelper
 RSpec.describe "Opportunities API", type: :request do
   before(:each) do
     Sidekiq::Testing.fake!
+    Opportunity.delete_all
     Sidekiq::Worker.clear_all
     Rails.cache.clear
+    Rails.cache.redis.flushdb if Rails.cache.respond_to?(:redis)
   end
 
   after(:each) do
