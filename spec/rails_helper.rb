@@ -22,4 +22,13 @@ RSpec.configure do |config|
   config.use_transactional_fixtures = true
   config.filter_rails_from_backtrace!
   config.include FactoryBot::Syntax::Methods
+
+  config.before(:each) do
+    Sidekiq::Worker.clear_all
+    Rails.cache.clear
+  end
+
+  config.after(:each) do
+    Rails.cache.clear
+  end
 end
