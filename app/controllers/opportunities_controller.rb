@@ -30,7 +30,14 @@ class OpportunitiesController < ApplicationController
   end
 
   def apply
+    timestamp = Time.now.to_i
     job_seeker = current_job_seeker # Replace with actual auth lookup
+    limiter = CustomRateLimiter.new(30, 3)
+
+    unless limiter.allow_request?(timestamp, job_seeker.id) # <--- Rate limiter from --- 1. Algorithmic Challenge: Rate Limiter (Leetcode Medium-Hard Level)
+      return render json: { error: "Rate limit exceeded. Try again later." }, status: :too_many_requests
+    end
+
     result = Applications::ApplyToOpportunity.new(
       opportunity: @opportunity,
       job_seeker: job_seeker
