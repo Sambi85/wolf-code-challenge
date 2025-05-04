@@ -46,7 +46,7 @@ bundle exec sidekiq
 
 # Gems
 - pry - tool for debugging
-- redis - for scaling the rate limiter
+- redis - for scaling the rate limiter + background jobs
 - sidekiq - for background jobs
 - kaminari - for pagination
 - rspec - testing (requirement)
@@ -57,6 +57,7 @@ bundle exec sidekiq
 - Option 1: In-memory Hash: This would store request data in memory, keyed by user ID, and use a Mutex for thread safety. This solution would work for single-server environments but is limited in scalability. It lacks cross-instance coordination, which is problematic in a distributed environment where multiple app instances or servers could be handling requests simultaneously.
 - Option 2: Redis-backed solution: Redis offers a distributed cache, ideal for scaling horizontally. By storing request data in Redis, we can share the state across multiple app instances. Redis also provides persistence, ensuring that the rate limiter's data survives app restarts, which is crucial for maintaining request limits over time.
 - I opted for Redis because of its ability to scale in distributed environments, providing fault tolerance and persistence across app restarts. This decision ensures the rate limiter can handle high traffic, manage requests efficiently, and maintain consistent state in a multi-instance environment.
+- Worth noting rack attack would be a good gem for this...
 
 file path: 
 ```bash
@@ -156,6 +157,7 @@ Mutex, thread safety - (Single Server Approach Rate limiting)
 
 kaminari gem - https://github.com/kaminari/kaminari
 ransack gem - https://github.com/activerecord-hackery/ransack
+rack attack - https://github.com/rack/rack-attack
 
 **Redis Syntax**
 ZREMBRANGEBYSCORE, Removes all elements in the sorted set stored  - https://redis.io/docs/latest/commands/zremrangebyscore/
