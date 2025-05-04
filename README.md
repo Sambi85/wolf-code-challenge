@@ -75,7 +75,7 @@ app/lib/custom_rate_limiter.rb
 
 # Where to start?:
 - app/controllers/opportunities_controller.rb
-- app/lib/result.rb
+- app/lib/result.rb + custom_rate_limiter.rb
 - app/services/applications/apply_to_opportunity.rb
 - app/services/opportunity_search_service.rb
 - app/jobs/notify_job_seeker_job.rb
